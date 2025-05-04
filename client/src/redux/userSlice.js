@@ -42,3 +42,5 @@ export function UpdateProfile(val) {
     dispatch(userSlice.actions.updateProfile(val));
   };
 }
+
+

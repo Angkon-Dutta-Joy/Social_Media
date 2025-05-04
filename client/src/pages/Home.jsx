@@ -158,6 +158,7 @@ const Home = () => {
 
   return (
     <>
+    
       <div className='w-full px-0 lg:px-10 pb-5 md:pb-20 2xl:px-40 bg-bgColor lg:rounded-lg h-screen overflow-hidden'>
         <TopBar />
         <div className='w-full flex gap-2 lg:gap-4 pt-5 pb-10 h-full'>
@@ -176,7 +177,7 @@ const Home = () => {
               <div className='w-full flex items-center gap-2 py-4 border-b border-[#66666645]'>
                 <img
                   src={user?.profileUrl ?? NoProfile}
-                  alt='User Image'
+                  alt='User'
                   className='w-14 h-14 rounded-full object-cover'
                 />
 
@@ -265,9 +266,6 @@ const Home = () => {
               </div>
             </form>
 
-            <div className='block md:hidden'>
-              <ProfileCard user={user} />
-            </div>
             {loading ? (
               <Loading />
             ) : posts?.length > 0 ? (

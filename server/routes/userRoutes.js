@@ -12,6 +12,8 @@ import {
   suggestedFriends,
   updateUser,
   verifyEmail,
+  unFriend,
+  searchUserPosts
 } from "../controllers/userController.js";
 import userAuth from "../middleware/authMiddleware.js";
 
@@ -36,7 +38,7 @@ router.post("/get-friend-request", userAuth, getFriendRequest);
 router.post("/accept-request", userAuth, acceptRequest);
 
 // view profile
-router.post("/profile-view", userAuth, profileViews);
+router.post("/profile-view", profileViews);
 
 //suggested friends
 router.post("/suggested-friends", userAuth, suggestedFriends);
@@ -48,5 +50,9 @@ router.get("/verified", (req, res) => {
 router.get("/resetpassword", (req, res) => {
   res.sendFile(path.join(__dirname, "./views/build", "index.html"));
 });
+
+router.post("/unfriend", unFriend);
+
+router.get("/search", searchUserPosts);
 
 export default router;

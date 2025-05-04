@@ -1,5 +1,6 @@
 import axios from "axios";
 import { SetPosts } from "../redux/postSlice";
+import { toast } from "react-toastify";
 
 const API_URL = "http://localhost:8800";
 
@@ -120,10 +121,28 @@ export const sendFriendRequest = async (token, id) => {
       method: "POST",
       data: { requestTo: id },
     });
+    toast.success("Successfully sent friend request");
   } catch (error) {
     console.log(error);
+    toast.error("Error sending friend request");
   }
 };
+
+export const handleUnfriend = async (friendId, userId) => {
+  try {
+    const res = await apiRequest({
+      url: "/users/unfriend",
+      method: "POST",
+      data: { userId, friendId },
+    });
+
+    toast.success("Successfully unfriended user"); 
+  } catch (err) {
+    console.error(err);
+    toast.error("Error unfriending user");
+  }
+};
+
 
 export const viewUserProfile = async (token, id) => {
   try {
@@ -135,5 +154,36 @@ export const viewUserProfile = async (token, id) => {
     });
   } catch (error) {
     console.log(error);
+  }
+};
+
+
+export const handleProfileView = async (user) => {
+  try {
+    await apiRequest({
+      url: "/users/profile-view",
+      method: "POST",
+      data: {
+        profileId: user,
+      },
+    });
+  } catch (error) {
+    console.error("Error counting view", error);
+  }
+};
+
+
+export const handleSearching = async (data) => {
+  try {
+    const res = await apiRequest({
+      url: `users/search?q=${data}`,
+      method: "GET",
+    });
+    console.log("Posts:", res.posts);
+    console.log("Posts:", res.posts);
+
+
+  } catch (err) {
+    console.error("Search error", err);
   }
 };

@@ -5,6 +5,7 @@ import { compareString, createJWT, hashString } from "../utils/index.js";
 import PasswordReset from "../models/PasswordReset.js";
 import { resetPasswordLink } from "../utils/sendEmail.js";
 import FriendRequest from "../models/friendRequest.js";
+import Posts from "../models/postModel.js";
 
 export const verifyEmail = async (req, res) => {
   const { userId, token } = req.params;
@@ -336,6 +337,7 @@ export const acceptRequest = async (req, res, next) => {
       { _id: rid },
       { requestStatus: status }
     );
+    await FriendRequest.findByIdAndDelete(rid);
 
     if (status === "Accepted") {
       const user = await Users.findById(id);
@@ -367,26 +369,14 @@ export const acceptRequest = async (req, res, next) => {
 
 export const profileViews = async (req, res, next) => {
   try {
-    const { userId } = req.body.user;
-    const { id } = req.body;
-
-    const user = await Users.findById(id);
-
-    user.views.push(userId);
-
-    await user.save();
-
-    res.status(201).json({
-      success: true,
-      message: "Successfully",
+    const { profileId } = req.body;
+    await Users.findByIdAndUpdate(profileId, {
+      $inc: { views: 1 }
     });
+    res.status(200).json({ message: "Profile view counted" });
   } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      message: "auth error",
-      success: false,
-      error: error.message,
-    });
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -413,5 +403,54 @@ export const suggestedFriends = async (req, res) => {
   } catch (error) {
     console.log(error);
     res.status(404).json({ message: error.message });
+  }
+};
+
+
+export const unFriend = async (req, res) => {
+  try {
+    const { userId, friendId } = req.body;
+
+    if (!userId || !friendId) {
+      return res.status(400).json({ message: "User ID and Friend ID are required" });
+    }
+
+    await Users.findByIdAndUpdate(userId, {
+      $pull: { friends: friendId }
+    });
+
+    await Users.findByIdAndUpdate(friendId, {
+      $pull: { friends: userId }
+    });
+
+    res.status(200).json({ message: "Successfully unfriended" });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
+};
+
+export const searchUserPosts = async (req, res) => {
+   try {
+    const query = req.query.q;
+    const users = await Users.find({
+      $or: [
+        { firstName: { $regex: query, $options: "i" } },
+        { lastName: { $regex: query, $options: "i" } },
+      ],
+    }).select("-password");
+
+    const posts = await Posts.find({
+      description: { $regex: query, $options: "i" },
+    })
+      .populate({
+        path: "userId",
+        select: "firstName lastName location profileUrl",
+      })
+      .sort({ _id: -1 });
+
+    res.json({ users, posts });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
   }
 };

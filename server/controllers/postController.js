@@ -332,3 +332,69 @@ export const deletePost = async (req, res, next) => {
     res.status(404).json({ message: error.message });
   }
 };
+
+
+
+// Edit Comment
+export const editCommentPost = async (req, res, next) => {
+  try {
+    const { comment } = req.body; 
+    const { userId } = req.body.user; 
+    const { commentId } = req.params;
+
+    if (!comment) {
+      return res.status(400).json({ message: "Comment content is required." });
+    }
+
+    const existingComment = await Comments.findById(commentId);
+
+    if (!existingComment) {
+      return res.status(404).json({ message: "Comment not found." });
+    }
+
+    if (existingComment.userId.toString() !== userId.toString()) {
+      return res
+        .status(403)
+        .json({ message: "You are not authorized to edit this comment." });
+    }
+
+    existingComment.comment = comment;
+
+    const updatedComment = await existingComment.save();
+
+    res.status(200).json({status: "success"});
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+
+// Delete Comment
+export const deleteCommentPost = async (req, res, next) => {
+  try {
+    const { commentId } = req.params;
+    if (!commentId) {
+      return res.status(400).json({ message: "Comment ID is required." });
+    }
+
+    const deletedComment = await Comments.findByIdAndDelete(commentId);
+
+    if (!deletedComment) {
+      return res.status(404).json({ message: "Comment not found." });
+    }
+
+    await Posts.updateOne(
+      { _id: deletedComment.postId },
+      { $pull: { comments: commentId } }
+    );
+
+    res.status(200).json({
+      status: "success",
+      message: "Comment deleted successfully",
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ messege: error.message });
+  }
+};

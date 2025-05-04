@@ -29,6 +29,11 @@ build/Release
 # Dependency directories
 node_modules
 jspm_packages
+# Environment variables
+.env
+client/.env
+server/.env
+
 
 # Optional npm cache directory
 .npm

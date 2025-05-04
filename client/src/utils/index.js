@@ -121,7 +121,7 @@ export const sendFriendRequest = async (token, id) => {
       method: "POST",
       data: { requestTo: id },
     });
-    toast.success("Successfully sent friend request");
+    toast.success("Scuccessfully sent friend request");
   } catch (error) {
     console.log(error);
     toast.error("Error sending friend request");
